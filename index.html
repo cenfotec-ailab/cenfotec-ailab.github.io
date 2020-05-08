@@ -64,6 +64,77 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-haar" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/07/haar/" class="article-date">
+  <time datetime="2020-05-08T03:53:01.000Z" itemprop="datePublished">2020-05-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categorias/tutoriales/">tutoriales</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/07/haar/">Detección de Caras con Cascadas Haar</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>En este tutorial mostraremos como utilizar OpenCV con cascadas haar para hacer una extracción rápida de caras en fotos.</p>
+<h2 id="Librerias"><a href="#Librerias" class="headerlink" title="Librerias"></a>Librerias</h2><p>Vamos a necesitar la librería matplotlib para desplegar las fotos en el cuaderno de jupyter y opencv para realizar el trabajo duro. El siguiente fragmento de código muestra como se cargan las librerías:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line">%matplotlib inline</span><br></pre></td></tr></table></figure>
+<h2 id="Modelo-Pre-Entrenado"><a href="#Modelo-Pre-Entrenado" class="headerlink" title="Modelo Pre-Entrenado"></a>Modelo Pre-Entrenado</h2><p>OpenCV ofrece una lista de modelos de predicción ya entrenados. No tenemos que invertir tiempo entrenando un clasificador de caras. El algoritmo utilizado para entrenar este clasificador en cascada se llama AdaBoost.</p>
+<p>Solo necesitamos una línea de código para cargar el clasificador.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cargar clasificador pre-entrenado</span></span><br><span class="line">cascada_caras = cv2.CascadeClassifier(<span class="string">'haarcascade_frontalface_default.xml'</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="Imagen-de-Prueba"><a href="#Imagen-de-Prueba" class="headerlink" title="Imagen de Prueba"></a>Imagen de Prueba</h2><p>Vamos a cargar una imagen con varias personas para probar nuestro clasificador. Es importante mencionar que el clasificador haar funciona mejor cuando las imagenes estan en blanco y negro (o con tonos grises). Por esto, vamos a convertir la imagen a gris.</p>
+<p>Utilizamos matplotlib para desplegar la imagen en el notebook con el siguiente código:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cargar imagen de prueba</span></span><br><span class="line">img = cv2.imread(<span class="string">'personas.jpg'</span>)</span><br><span class="line"><span class="comment"># se convierte la imagen en tono gris (b/n)</span></span><br><span class="line">gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)</span><br><span class="line"><span class="comment"># desplegar la imagen</span></span><br><span class="line">plt.imshow(gris, cmap=<span class="string">'Greys_r'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/05/07/haar/gris.png" class="">
+
+<h2 id="Deteccion"><a href="#Deteccion" class="headerlink" title="Detección"></a>Detección</h2><p>OpenCV facilita la deteccion de caras mediante el uso del clasificador “cascada_caras” que cargamos anteriormente. Solo queda ejecutar una línea de código para obtener un arreglo de las posiciones x-y, ancho-alto de cada imagen reconocida:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Deteccion de caras</span></span><br><span class="line">caras = cascada_caras.detectMultiScale(gris, <span class="number">1.3</span>, <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+<p>El arreglo “caras” contiene la información que necesitamos. Vamos a recorrerlo para agregar un rectángulo sobre cada cara en la imagen “gris”. A la vez que vamos recorreindo el arreglo, también vamos salvando las caras detectadas en el arreglo “recortes” el cual usaremos luego para extraer solamente las caras.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># aqui vamos a almacenar las caras recortadas</span></span><br><span class="line">recortes = []</span><br><span class="line"></span><br><span class="line"><span class="comment"># usamos cv2.rectangle para poner un rectangulo a cada</span></span><br><span class="line"><span class="comment"># cara registrada</span></span><br><span class="line"><span class="keyword">for</span> (x,y,w,h) <span class="keyword">in</span> caras:</span><br><span class="line">    <span class="comment"># se sobre escribe la image en cada ciclo</span></span><br><span class="line">    img = cv2.rectangle(img,(x,y),(x+w,y+h),(<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>),<span class="number">10</span>)</span><br><span class="line">    recortes.append(img[y:y+h, x:x+w])</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/05/07/haar/color.png" class="">
+
+<h2 id="Recortes"><a href="#Recortes" class="headerlink" title="Recortes"></a>Recortes</h2><p>La imagen anterior muestra como se agregaron los cuadros azules a la imagen original. También se nota como se salva cada cara detectada en el arreglo recortes el cual vamos a recorrer para imprimir las caras por separado:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># deplegar recortes</span></span><br><span class="line"><span class="keyword">for</span> recorte <span class="keyword">in</span> recortes:</span><br><span class="line">    rec = cv2.cvtColor(recorte, cv2.COLOR_BGR2RGB)</span><br><span class="line">    plt.imshow(rec)</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+<img src="/2020/05/07/haar/1.png" class="">
+<img src="/2020/05/07/haar/2.png" class="">
+<img src="/2020/05/07/haar/3.png" class="">
+<img src="/2020/05/07/haar/4.png" class="">
+<img src="/2020/05/07/haar/5.png" class="">
+
+<h2 id="Codigo-Fuente"><a href="#Codigo-Fuente" class="headerlink" title="Código Fuente"></a>Código Fuente</h2><p>Puede descargar el cuaderno de jupyter de nuesto Github <a href="https://github.com/cenfotec-ailab/ejemplos-vision-computacional/blob/master/open-cv/deteccion-caras/deteccion-caras-cascadas-haar.ipynb" target="_blank" rel="noopener">aquí</a>.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/07/haar/" data-id="ck9xp73l10001zpp820q1aei6" class="article-share-link">Compartir</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-biblioteca" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/05/02/biblioteca/" class="article-date">
@@ -162,7 +233,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/02/biblioteca/" data-id="ck9xjf9660000rxp8c45rezzr" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/02/biblioteca/" data-id="ck9xp73kv0000zpp8cce1hehz" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PDF/" rel="tag">PDF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/libros/" rel="tag">libros</a></li></ul>
@@ -214,7 +285,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/01/webinar-cnn-keras/" data-id="ck9xjf96c0001rxp81i5t5dkb" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/01/webinar-cnn-keras/" data-id="ck9xp73l60004zpp85ni37smf" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cnn/" rel="tag">cnn</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/keras/" rel="tag">keras</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/perceptron/" rel="tag">perceptron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rcnn/" rel="tag">rcnn</a></li></ul>
@@ -236,7 +307,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categorías</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categorias/recursos/">recursos</a></li><li class="category-list-item"><a class="category-list-link" href="/categorias/webinars/">webinars</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categorias/recursos/">recursos</a></li><li class="category-list-item"><a class="category-list-link" href="/categorias/tutoriales/">tutoriales</a></li><li class="category-list-item"><a class="category-list-link" href="/categorias/webinars/">webinars</a></li></ul>
     </div>
   </div>
 
@@ -246,7 +317,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/PDF/" rel="tag">PDF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cnn/" rel="tag">cnn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/keras/" rel="tag">keras</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libros/" rel="tag">libros</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/perceptron/" rel="tag">perceptron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rcnn/" rel="tag">rcnn</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PDF/" rel="tag">PDF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cnn/" rel="tag">cnn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/keras/" rel="tag">keras</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libros/" rel="tag">libros</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/perceptron/" rel="tag">perceptron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rcnn/" rel="tag">rcnn</a></li></ul>
     </div>
   </div>
 
@@ -256,7 +327,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Nube de Tags</h3>
     <div class="widget tagcloud">
-      <a href="/tags/PDF/" style="font-size: 10px;">PDF</a> <a href="/tags/cnn/" style="font-size: 10px;">cnn</a> <a href="/tags/keras/" style="font-size: 10px;">keras</a> <a href="/tags/libros/" style="font-size: 10px;">libros</a> <a href="/tags/perceptron/" style="font-size: 10px;">perceptron</a> <a href="/tags/rcnn/" style="font-size: 10px;">rcnn</a>
+      <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/PDF/" style="font-size: 10px;">PDF</a> <a href="/tags/cnn/" style="font-size: 10px;">cnn</a> <a href="/tags/keras/" style="font-size: 10px;">keras</a> <a href="/tags/libros/" style="font-size: 10px;">libros</a> <a href="/tags/perceptron/" style="font-size: 10px;">perceptron</a> <a href="/tags/rcnn/" style="font-size: 10px;">rcnn</a>
     </div>
   </div>
 
@@ -276,6 +347,10 @@
     <h3 class="widget-title">Posts recientes</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/05/07/haar/">Detección de Caras con Cascadas Haar</a>
+          </li>
         
           <li>
             <a href="/2020/05/02/biblioteca/">Libros para AI</a>
