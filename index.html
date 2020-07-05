@@ -64,6 +64,80 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-deteccion-carriles-opencv-parte-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/05/deteccion-carriles-opencv-parte-1/" class="article-date">
+  <time datetime="2020-07-05T18:40:20.000Z" itemprop="datePublished">2020-07-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categorias/tutoriales/">tutoriales</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/05/deteccion-carriles-opencv-parte-1/">Deteccion de carriles - Parte 1</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional</p>
+<h2 id="Librerias"><a href="#Librerias" class="headerlink" title="Librerias"></a>Librerias</h2><p>Vamos a necesitar la librería matplotlib para desplegar las fotos en el cuaderno de jupyter y opencv para realizar el trabajo duro. El siguiente fragmento de código muestra como se cargan las librerías:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h2 id="Funcion-para-imprimir-en-el-cuaderno-de-Jupyter"><a href="#Funcion-para-imprimir-en-el-cuaderno-de-Jupyter" class="headerlink" title="Función para imprimir en el cuaderno de Jupyter"></a>Función para imprimir en el cuaderno de Jupyter</h2><p>Esta es una funcionalidad simple para desplegar imágenes en un cuaderno de Jupyter.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_img</span><span class="params">(image)</span>:</span></span><br><span class="line">    plt.figure(figsize=(<span class="number">10</span>,<span class="number">10</span>))</span><br><span class="line">    plt.imshow(image, cmap= <span class="string">"gray"</span>)</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Imagen-a-Color"><a href="#Imagen-a-Color" class="headerlink" title="Imagen a Color"></a>Imagen a Color</h2><p>Se imprime la imagen original<br>frame[:,:,0] nos devuelve la imagen en blanco y negro.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">frame = cv2.imread(<span class="string">'carril.jpg'</span>)</span><br><span class="line">frame_bn = frame[:,:,<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">print_img(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))</span><br></pre></td></tr></table></figure>
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/1.png" class="">
+
+<h2 id="Imagen-en-Blanco-y-Negro"><a href="#Imagen-en-Blanco-y-Negro" class="headerlink" title="Imagen en Blanco y Negro"></a>Imagen en Blanco y Negro</h2><p>frame[:,:,0] nos devuelve la imagen en blanco y negro.<br>Vamos a imprimirla!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(cv2.cvtColor(frame_bn, cv2.COLOR_BGR2RGB))</span><br></pre></td></tr></table></figure>
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/2.png" class="">
+
+<h2 id="Mascara"><a href="#Mascara" class="headerlink" title="Máscara"></a>Máscara</h2><p>Aquí se crea un polígono que se utiliza para enfocar el area de interés.<br>El poligono es un trapecio que se alinea con el area de vision del conductor y el carril que tiene de frente.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># se crea un arreglo de ceros basado en la imagen en blanco y negro</span></span><br><span class="line">stencil = np.zeros_like(frame_bn)</span><br><span class="line"><span class="comment"># se define el poligono de interes.</span></span><br><span class="line">polygon = np.array([[<span class="number">90</span>,<span class="number">390</span>], [<span class="number">320</span>,<span class="number">200</span>], [<span class="number">500</span>,<span class="number">200</span>], [<span class="number">700</span>,<span class="number">390</span>]])</span><br><span class="line"><span class="comment"># se llena la imagen de ceros con el poligono creado en blanco (unos)</span></span><br><span class="line">cv2.fillConvexPoly(stencil, polygon, <span class="number">1</span>)</span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(stencil)</span><br></pre></td></tr></table></figure>
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/3.png" class="">
+
+<h2 id="Se-aplica-la-mascara-a-la-imagen-en-B-N"><a href="#Se-aplica-la-mascara-a-la-imagen-en-B-N" class="headerlink" title="Se aplica la máscara a la imagen en B/N"></a>Se aplica la máscara a la imagen en B/N</h2><p>La máscara simplemente saca de foco todo lo que no es importante para el reconocedor. Es un hack :)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># se aplica la mascara a la imagen en blanco y negro</span></span><br><span class="line">img = cv2.bitwise_and(frame_bn, frame_bn, mask=stencil)</span><br><span class="line"></span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(img)</span><br></pre></td></tr></table></figure>
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/4.png" class="">
+
+<h2 id="Se-comvierte-la-imagen-a-Blanco-y-Negro-sin-tonos-grises"><a href="#Se-comvierte-la-imagen-a-Blanco-y-Negro-sin-tonos-grises" class="headerlink" title="Se comvierte la imagen a Blanco y Negro sin tonos grises"></a>Se comvierte la imagen a Blanco y Negro sin tonos grises</h2><p>Se usa cv2.threshold para convertir la imagen anterior en blanco y negro puro.<br>Esto causa que las lineas blancas sean las únicas que queden en blanco.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ret, thresh = cv2.threshold(img, <span class="number">240</span>, <span class="number">300</span>, cv2.THRESH_BINARY)</span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(thresh)</span><br></pre></td></tr></table></figure>
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/5.png" class="">
+
+<h2 id="Magia-Se-usa-cv2-HoughLinesP-para-identificar-lineas-en-la-imagen-anterior"><a href="#Magia-Se-usa-cv2-HoughLinesP-para-identificar-lineas-en-la-imagen-anterior" class="headerlink" title="Magia: Se usa cv2.HoughLinesP para identificar lineas en la imagen anterior."></a>Magia: Se usa cv2.HoughLinesP para identificar lineas en la imagen anterior.</h2><p>cv2.HoughLinesP nos permite encontrar lineas en una imagen. En este caso estas son las de las divisiones de los carriles.<br>Luego de identificarlas, las imprimimos sobre la imagen original y voila!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># detectar lineas con OpenCV</span></span><br><span class="line">lines = cv2.HoughLinesP(thresh, <span class="number">1</span>, np.pi/<span class="number">180</span>, <span class="number">30</span>, maxLineGap=<span class="number">200</span>)</span><br><span class="line"><span class="comment"># se dibujan las lineas en la imagen original (frame) con color azul</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> lines:</span><br><span class="line">    x1, y1, x2, y2 = line[<span class="number">0</span>]</span><br><span class="line">    cv2.line(frame, (x1, y1), (x2, y2), (<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>), <span class="number">2</span>)</span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))</span><br></pre></td></tr></table></figure>
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/6.png" class="">
+
+<h2 id="Fin-de-la-Parte-I"><a href="#Fin-de-la-Parte-I" class="headerlink" title="Fin de la Parte I"></a>Fin de la Parte I</h2><p>Estén atentos ya que viene la parte II. En la segunda parte de este mini-experimento vamos a reutilizar este código para realizar detección de carriles sobre un video en tiempo real. Para que esto funcione, se deben utilizar otras técnicas adicionales, pero esto estará disponible en nuestra segunda entrega.</p>
+<h2 id="Codigo-Fuente"><a href="#Codigo-Fuente" class="headerlink" title="Código Fuente:"></a>Código Fuente:</h2><p>Pueden descargar el notebook director desde nuestro <a href="https://github.com/cenfotec-ailab/ejemplos-vision-computacional/blob/master/open-cv/deteccion-carriles/Parte-1-Deteccion-de-Carriles.ipynb" target="_blank" rel="noopener">github</a>.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/" data-id="ckc9fuh3v0004s9my2dm3fj3m" class="article-share-link">Compartir</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-programa-profesional-ia" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/07/03/programa-profesional-ia/" class="article-date">
@@ -112,7 +186,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/07/03/programa-profesional-ia/" data-id="ckc75v0am0005c1my5l650y4s" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/07/03/programa-profesional-ia/" data-id="ckc9fuh410006s9myc4frbep8" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/faq/" rel="tag">faq</a></li></ul>
@@ -171,7 +245,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/06/02/webinar-neo4j/" data-id="ckc75v0ar0009c1my1cih9t22" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/06/02/webinar-neo4j/" data-id="ckc9fuh460009s9my3c3dhcpg" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cypher/" rel="tag">cypher</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/graph/" rel="tag">graph</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/neo4j/" rel="tag">neo4j</a></li></ul>
@@ -223,7 +297,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/20/webinar-spark/" data-id="ckc75v0as000ac1my4ozsh8hy" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/20/webinar-spark/" data-id="ckc9fuh49000es9mycjb4hwwp" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/big-data/" rel="tag">big data</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rdd/" rel="tag">rdd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
@@ -323,7 +397,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/16/datasets/" data-id="ckc75v0ae0001c1my2wkug417" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/16/datasets/" data-id="ckc9fuh3q0001s9myb1ht6tpu" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/datasets/" rel="tag">datasets</a></li></ul>
@@ -394,7 +468,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/07/haar/" data-id="ckc75v0ai0004c1my9o4080s1" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/07/haar/" data-id="ckc9fuh3y0005s9mya8ip9qrb" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li></ul>
@@ -504,7 +578,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/02/biblioteca/" data-id="ckc75v0a80000c1my0kgtdtor" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/02/biblioteca/" data-id="ckc9fuh3j0000s9my1dqu79dc" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PDF/" rel="tag">PDF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/libros/" rel="tag">libros</a></li></ul>
@@ -559,7 +633,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/05/01/webinar-cnn-keras/" data-id="ckc75v0ao0006c1my20n3giti" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/05/01/webinar-cnn-keras/" data-id="ckc9fuh47000as9my3lfb1u32" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cnn/" rel="tag">cnn</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/keras/" rel="tag">keras</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/perceptron/" rel="tag">perceptron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rcnn/" rel="tag">rcnn</a></li></ul>
@@ -601,7 +675,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Nube de Tags</h3>
     <div class="widget tagcloud">
-      <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/PDF/" style="font-size: 10px;">PDF</a> <a href="/tags/big-data/" style="font-size: 10px;">big data</a> <a href="/tags/cnn/" style="font-size: 10px;">cnn</a> <a href="/tags/cypher/" style="font-size: 10px;">cypher</a> <a href="/tags/datasets/" style="font-size: 10px;">datasets</a> <a href="/tags/faq/" style="font-size: 10px;">faq</a> <a href="/tags/graph/" style="font-size: 10px;">graph</a> <a href="/tags/keras/" style="font-size: 10px;">keras</a> <a href="/tags/libros/" style="font-size: 10px;">libros</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/perceptron/" style="font-size: 10px;">perceptron</a> <a href="/tags/rcnn/" style="font-size: 10px;">rcnn</a> <a href="/tags/rdd/" style="font-size: 10px;">rdd</a> <a href="/tags/spark/" style="font-size: 10px;">spark</a>
+      <a href="/tags/OpenCV/" style="font-size: 20px;">OpenCV</a> <a href="/tags/PDF/" style="font-size: 10px;">PDF</a> <a href="/tags/big-data/" style="font-size: 10px;">big data</a> <a href="/tags/cnn/" style="font-size: 10px;">cnn</a> <a href="/tags/cypher/" style="font-size: 10px;">cypher</a> <a href="/tags/datasets/" style="font-size: 10px;">datasets</a> <a href="/tags/faq/" style="font-size: 10px;">faq</a> <a href="/tags/graph/" style="font-size: 10px;">graph</a> <a href="/tags/keras/" style="font-size: 10px;">keras</a> <a href="/tags/libros/" style="font-size: 10px;">libros</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/perceptron/" style="font-size: 10px;">perceptron</a> <a href="/tags/rcnn/" style="font-size: 10px;">rcnn</a> <a href="/tags/rdd/" style="font-size: 10px;">rdd</a> <a href="/tags/spark/" style="font-size: 10px;">spark</a>
     </div>
   </div>
 
@@ -623,6 +697,10 @@
       <ul>
         
           <li>
+            <a href="/2020/07/05/deteccion-carriles-opencv-parte-1/">Deteccion de carriles - Parte 1</a>
+          </li>
+        
+          <li>
             <a href="/2020/07/03/programa-profesional-ia/">Preguntas Frecuentes - Programa Profesional en IA</a>
           </li>
         
@@ -636,10 +714,6 @@
         
           <li>
             <a href="/2020/05/16/datasets/">Datasets para Machine Learning</a>
-          </li>
-        
-          <li>
-            <a href="/2020/05/07/haar/">Detección de Caras con Cascadas Haar</a>
           </li>
         
       </ul>
