@@ -5,14 +5,14 @@
   
 
   
-  <title>Deteccion de carriles - Parte 1 | </title>
+  <title>Detección de carriles - Parte 1 | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional LibreriasVamos a necesitar la libre">
+  <meta name="description" content="Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional. LibreriasVamos a necesitar la libr">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Deteccion de carriles - Parte 1">
+<meta property="og:title" content="Detección de carriles - Parte 1">
 <meta property="og:url" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/index.html">
 <meta property="og:site_name" content="">
-<meta property="og:description" content="Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional LibreriasVamos a necesitar la libre">
+<meta property="og:description" content="Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional. LibreriasVamos a necesitar la libr">
 <meta property="og:locale" content="es_ES">
 <meta property="og:image" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/1.png">
 <meta property="og:image" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/2.png">
@@ -20,8 +20,9 @@
 <meta property="og:image" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/4.png">
 <meta property="og:image" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/5.png">
 <meta property="og:image" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/6.png">
+<meta property="og:image" content="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/general.png">
 <meta property="article:published_time" content="2020-07-05T18:40:20.000Z">
-<meta property="article:modified_time" content="2020-07-05T18:57:34.809Z">
+<meta property="article:modified_time" content="2020-07-08T04:17:37.934Z">
 <meta property="article:author" content="Cenfotec A.I. Lab">
 <meta property="article:tag" content="OpenCV">
 <meta name="twitter:card" content="summary">
@@ -92,7 +93,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Deteccion de carriles - Parte 1
+      Detección de carriles - Parte 1
     </h1>
   
 
@@ -100,7 +101,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional</p>
+        <p>Con OpenCV y python se pueden realizar cosas muy interesantes. En este post, vamos a realizar un detector de carriles usando varias técnicas de visión computacional.</p>
 <h2 id="Librerias"><a href="#Librerias" class="headerlink" title="Librerias"></a>Librerias</h2><p>Vamos a necesitar la librería matplotlib para desplegar las fotos en el cuaderno de jupyter y opencv para realizar el trabajo duro. El siguiente fragmento de código muestra como se cargan las librerías:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
 <h2 id="Funcion-para-imprimir-en-el-cuaderno-de-Jupyter"><a href="#Funcion-para-imprimir-en-el-cuaderno-de-Jupyter" class="headerlink" title="Función para imprimir en el cuaderno de Jupyter"></a>Función para imprimir en el cuaderno de Jupyter</h2><p>Esta es una funcionalidad simple para desplegar imágenes en un cuaderno de Jupyter.</p>
@@ -122,7 +123,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># se aplica la mascara a la imagen en blanco y negro</span></span><br><span class="line">img = cv2.bitwise_and(frame_bn, frame_bn, mask=stencil)</span><br><span class="line"></span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(img)</span><br></pre></td></tr></table></figure>
 <img src="/2020/07/05/deteccion-carriles-opencv-parte-1/4.png" class="">
 
-<h2 id="Se-comvierte-la-imagen-a-Blanco-y-Negro-sin-tonos-grises"><a href="#Se-comvierte-la-imagen-a-Blanco-y-Negro-sin-tonos-grises" class="headerlink" title="Se comvierte la imagen a Blanco y Negro sin tonos grises"></a>Se comvierte la imagen a Blanco y Negro sin tonos grises</h2><p>Se usa cv2.threshold para convertir la imagen anterior en blanco y negro puro.<br>Esto causa que las lineas blancas sean las únicas que queden en blanco.</p>
+<h2 id="Se-convierte-la-imagen-a-Blanco-y-Negro-sin-tonos-grises"><a href="#Se-convierte-la-imagen-a-Blanco-y-Negro-sin-tonos-grises" class="headerlink" title="Se convierte la imagen a Blanco y Negro sin tonos grises"></a>Se convierte la imagen a Blanco y Negro sin tonos grises</h2><p>Se usa cv2.threshold para convertir la imagen anterior en blanco y negro puro.<br>Esto causa que las lineas blancas sean las únicas que queden visibles.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ret, thresh = cv2.threshold(img, <span class="number">240</span>, <span class="number">300</span>, cv2.THRESH_BINARY)</span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(thresh)</span><br></pre></td></tr></table></figure>
 <img src="/2020/07/05/deteccion-carriles-opencv-parte-1/5.png" class="">
 
@@ -130,13 +131,22 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># detectar lineas con OpenCV</span></span><br><span class="line">lines = cv2.HoughLinesP(thresh, <span class="number">1</span>, np.pi/<span class="number">180</span>, <span class="number">30</span>, maxLineGap=<span class="number">200</span>)</span><br><span class="line"><span class="comment"># se dibujan las lineas en la imagen original (frame) con color azul</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> lines:</span><br><span class="line">    x1, y1, x2, y2 = line[<span class="number">0</span>]</span><br><span class="line">    cv2.line(frame, (x1, y1), (x2, y2), (<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>), <span class="number">2</span>)</span><br><span class="line"><span class="comment"># imprimir</span></span><br><span class="line">print_img(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))</span><br></pre></td></tr></table></figure>
 <img src="/2020/07/05/deteccion-carriles-opencv-parte-1/6.png" class="">
 
-<h2 id="Fin-de-la-Parte-I"><a href="#Fin-de-la-Parte-I" class="headerlink" title="Fin de la Parte I"></a>Fin de la Parte I</h2><p>Estén atentos ya que viene la parte II. En la segunda parte de este mini-experimento vamos a reutilizar este código para realizar detección de carriles sobre un video en tiempo real. Para que esto funcione, se deben utilizar otras técnicas adicionales, pero esto estará disponible en nuestra segunda entrega.</p>
-<h2 id="Codigo-Fuente"><a href="#Codigo-Fuente" class="headerlink" title="Código Fuente:"></a>Código Fuente:</h2><p>Pueden descargar el notebook director desde nuestro <a href="https://github.com/cenfotec-ailab/ejemplos-vision-computacional/blob/master/open-cv/deteccion-carriles/Parte-1-Deteccion-de-Carriles.ipynb" target="_blank" rel="noopener">github</a>.</p>
+<h2 id="Codigo-Fuente"><a href="#Codigo-Fuente" class="headerlink" title="Código Fuente:"></a>Código Fuente:</h2><p>Pueden descargar el notebook directo desde nuestro <a href="https://github.com/cenfotec-ailab/ejemplos-vision-computacional/blob/master/open-cv/deteccion-carriles/Parte-1-Deteccion-de-Carriles.ipynb" target="_blank" rel="noopener">github</a>.</p>
+<h2 id="Parte-II-Deteccion-en-Video"><a href="#Parte-II-Deteccion-en-Video" class="headerlink" title="Parte II - Detección en Video"></a>Parte II - Detección en Video</h2><p>El siguiente código permite desplegar un video frame-by-frame en una ventana.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># se carga el video de la general canas!</span></span><br><span class="line">cap = cv2.VideoCapture(<span class="string">'general.mp4'</span>)</span><br><span class="line"><span class="comment"># iteramos en cada frame</span></span><br><span class="line"><span class="keyword">while</span>(cap.isOpened()):</span><br><span class="line">    ret, frame = cap.read()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># aqui dibujamos las lineas.</span></span><br><span class="line">        frame = lane_draw(frame)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        print(str(e))</span><br><span class="line"></span><br><span class="line">    cv2.imshow(<span class="string">'frame'</span>,frame)</span><br><span class="line">    <span class="keyword">if</span> cv2.waitKey(<span class="number">1</span>) &amp; <span class="number">0xFF</span> == ord(<span class="string">'q'</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">cap.release()</span><br><span class="line">cv2.destroyAllWindows()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Funcion-lane-draw"><a href="#Funcion-lane-draw" class="headerlink" title="Función lane_draw"></a>Función lane_draw</h2><p>Esta función es la que agrupa la funcionalidad para detectar la linea del carril. Este código es similar al desarrollado en la parte I. Las únicas diferencia son la dimensión del polígono que ha sido ajustado al video y los valores del cv2.threshold que se han modificado para adaptarse al tono de la imagen, lo mejor posible.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lane_draw</span><span class="params">(_frame)</span>:</span></span><br><span class="line">    <span class="comment"># imagen en b/n</span></span><br><span class="line">    frame_bn = _frame[:,:,<span class="number">0</span>]</span><br><span class="line">    <span class="comment"># se crea un arreglo de ceros basado en la imagen en blanco y negro</span></span><br><span class="line">    stencil = np.zeros_like(frame_bn)</span><br><span class="line">    <span class="comment"># se define el poligono de interes.</span></span><br><span class="line">    polygon = np.array([[<span class="number">0</span>,<span class="number">250</span>], [<span class="number">100</span>,<span class="number">150</span>], [<span class="number">200</span>,<span class="number">150</span>], [<span class="number">350</span>,<span class="number">250</span>]])</span><br><span class="line">    <span class="comment"># se llena la imagen de ceros con el poligono creado en blanco (unos)</span></span><br><span class="line">    cv2.fillConvexPoly(stencil, polygon, <span class="number">1</span>)</span><br><span class="line">    <span class="comment"># se aplica la mascara a la imagen en blanco y negro</span></span><br><span class="line">    img = cv2.bitwise_and(frame_bn, frame_bn, mask=stencil)</span><br><span class="line">    <span class="comment"># Se usa cv2.threshold para convertir la imagen anterior en blanco y negro puro</span></span><br><span class="line">    <span class="comment"># esto causa que las lineas blancas sean las unicas que queden en blanco.</span></span><br><span class="line">    ret, thresh = cv2.threshold(img, <span class="number">200</span>, <span class="number">50</span>, cv2.THRESH_BINARY)</span><br><span class="line">    <span class="comment"># cv2.HoughLinesP nos permite encontrar lineas en una imagen. En este caso estas son</span></span><br><span class="line">    <span class="comment"># las de las divisiones de los carriles.</span></span><br><span class="line">    lines = cv2.HoughLinesP(thresh, <span class="number">1</span>, np.pi/<span class="number">180</span>, <span class="number">30</span>, maxLineGap=<span class="number">40</span>)</span><br><span class="line">    <span class="keyword">if</span> (lines <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>):</span><br><span class="line">        <span class="comment"># se dibujan las lineas en la imagen original (frame) con color azul</span></span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> lines:</span><br><span class="line">            x1, y1, x2, y2 = line[<span class="number">0</span>]</span><br><span class="line">            cv2.line(_frame, (x1, y1), (x2, y2), (<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>), <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> _frame</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/07/05/deteccion-carriles-opencv-parte-1/general.png" class="">
+
+<p>Es importante recalcar que este experimento no es lo suficientmente robusto para su uso en una aplicación profesional ya que estas técnicas de visión computacional son prácticamente hacks. Existen técnicas mas avanzadas que hacen reconocimiento utilizando aprendizaje profundo (deep learning) que con uso de GPUs se puede desarrollar un reconocedor de carriles mucho más exacto.</p>
+<h2 id="Codigo-Fuente-1"><a href="#Codigo-Fuente-1" class="headerlink" title="Código Fuente:"></a>Código Fuente:</h2><p>Pueden descargar el código y el video de: <a href="https://github.com/cenfotec-ailab/ejemplos-vision-computacional/tree/master/open-cv/deteccion-carriles" target="_blank" rel="noopener">Github</a>  </p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/" data-id="ckc9fuh3v0004s9my2dm3fj3m" class="article-share-link">Compartir</a>
+      <a data-url="https://cenfotec-ailab.github.io/2020/07/05/deteccion-carriles-opencv-parte-1/" data-id="ckccuqtgs00045tmy6t3gelcp" class="article-share-link">Compartir</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li></ul>
@@ -208,7 +218,7 @@
       <ul>
         
           <li>
-            <a href="/2020/07/05/deteccion-carriles-opencv-parte-1/">Deteccion de carriles - Parte 1</a>
+            <a href="/2020/07/05/deteccion-carriles-opencv-parte-1/">Detección de carriles - Parte 1</a>
           </li>
         
           <li>
